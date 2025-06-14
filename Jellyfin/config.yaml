@@ -1,0 +1,26 @@
+name: Jellyfin Media Server
+version: 1.0.0
+slug: jellyfin
+description: Free software media system to manage and stream your media.
+url: https://github.com/RFC1918-hub/Hassio-Add-ons
+webui: "http://[HOST]:[PORT:8096]"
+startup: services
+arch:
+  - amd64
+  - aarch64
+  - armv7
+init: false
+map:
+  - addon_config:rw
+  - media:rw
+privileged: []
+ports:
+  8096/tcp: 8096
+  8920/tcp: 8920
+ports_description:
+  8096/tcp: Jellyfin web and media port
+  8920/tcp: Jellyfin TLS port
+environment:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Africa/Johannesburg"
