@@ -9,7 +9,7 @@ arch:
   - aarch64
   - armv7
 map:
-  - config:rw
+  - addon_config:rw
   - media:rw
 ports:
   "5055/tcp": 5055
