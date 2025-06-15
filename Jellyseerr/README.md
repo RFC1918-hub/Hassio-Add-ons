@@ -22,7 +22,7 @@ No additional configuration is required. The default settings will start Jellyse
 
 If you need to persist settings or media metadata, the add-on maps the following folders:
 
-- `/config` → Add-on configuration and internal data
+- `/addon_config` → Add-on configuration and internal data
 - `/media` → Optional media path access (read/write)
 
 ## 🚀 Installation
