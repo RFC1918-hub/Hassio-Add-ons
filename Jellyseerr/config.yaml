@@ -13,5 +13,5 @@ map:
   - media:rw
 ports:
   "5055/tcp": 5055
-webui: "http://[HOST]:5055"
-image: fallenbagel/jellyseerr:latest
+webui: "http://[HOST]:[PORT:5055]"
+image: "ghcr.io/fallenbagel/jellyseerr:latest"
