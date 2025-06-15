@@ -14,4 +14,3 @@ map:
 ports:
   "5055/tcp": 5055
 webui: "http://[HOST]:[PORT:5055]"
-image: "ghcr.io/fallenbagel/jellyseerr:latest"
