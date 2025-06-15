@@ -1,0 +1,17 @@
+name: Jellyseerr
+version: 1.0.0
+slug: jellyseerr
+description: A free and open-source media request system built for Jellyfin and Plex.
+startup: services
+init: false
+arch:
+  - amd64
+  - aarch64
+  - armv7
+map:
+  - config:rw
+  - media:rw
+ports:
+  "5055/tcp": 5055
+webui: "http://[HOST]:5055"
+image: fallenbagel/jellyseerr:latest
