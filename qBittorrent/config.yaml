@@ -16,9 +16,3 @@ ports:
   "6881/tcp": 6881  # BitTorrent incoming
   "6881/udp": 6881  # BitTorrent DHT
 webui: "http://[HOST]:[PORT:8080]"
-options:
-  username: "admin"
-  password: "adminadmin"
-schema:
-  username: str
-  password: password
