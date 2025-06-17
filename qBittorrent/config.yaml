@@ -1,5 +1,5 @@
 name: qBittorrent
-version: 1.0.0
+version: 1.1.0
 slug: qbittorrent
 description: A BitTorrent client in the classic style with a nice web UI, using qBittorrent from LinuxServer.
 startup: services
