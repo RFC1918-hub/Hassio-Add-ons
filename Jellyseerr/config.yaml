@@ -1,5 +1,5 @@
 name: Jellyseerr
-version: 1.2.0
+version: 1.2.1
 slug: jellyseerr
 description: A free and open-source media request system built for Jellyfin and Plex.
 startup: services
