@@ -1,0 +1,10 @@
+.idea
+.ds_store
+example/example
+ultimate-guitar-scraper
+./ultimate-guitar-scraper
+sandbox
+out.html
+client
+*.db
+*.wav

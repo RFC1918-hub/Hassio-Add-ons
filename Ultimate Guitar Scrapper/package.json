@@ -1,0 +1,9 @@
+{
+  "name": "ultimate-guitar-scraper-wrapper",
+  "version": "1.0.0",
+  "description": "Node.js wrapper for ultimate-guitar-scraper",
+  "main": "n8n-wrapper.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

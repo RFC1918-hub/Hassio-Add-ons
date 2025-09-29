@@ -1,0 +1,20 @@
+name: Ultimate Guitar Scraper
+version: 3.0.0
+slug: ultimate-guitar-scraper
+description: A web scraper for Ultimate Guitar tabs and chords
+url: https://github.com/RFC1918-hub/Hassio-Add-ons
+webui: "http://[HOST]:[PORT:3000]"
+startup: services
+arch:
+  - amd64
+  - aarch64
+init: false
+map:
+  - addon_config:rw
+privileged: []
+ports:
+  3000/tcp: 3000
+ports_description:
+  3000/tcp: Web interface
+environment:
+  TZ: "Africa/Johannesburg"
