@@ -23,3 +23,6 @@ environment:
   N8N_RUNNERS_ENABLED: "true"
   WEBHOOK_URL: "https://n8n-058ea47.peakhq.co.za"
   N8N_HOST: "n8n-058ea47.peakhq.co.za"
+  N8N_PROTOCOL: "https"
+  N8N_TRUSTED_PROXY_IPS: "*"
+  NODE_ENV: "production"
