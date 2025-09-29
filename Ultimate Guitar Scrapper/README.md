@@ -1,6 +1,39 @@
-# Ultimate Guitar Scraper  
+# Home Assistant Add-on: Ultimate Guitar Scraper
 
-Ultimate-Guitar.com is the world's largest online database of guitar tablature. They also have a horrible UI that is filled with advertisements, interstitials, and other annoying stuff.  
+## About
+
+Ultimate-Guitar.com is the world's largest online database of guitar tablature. This add-on provides a clean, ad-free interface to access and manage guitar tabs.
+
+## Features
+
+- Clean, ad-free interface for Ultimate Guitar tabs
+- Search and fetch tabs by ID or URL
+- Export tabs in various formats
+- Built with Go and Node.js for optimal performance
+- Version 3.0.0
+
+## Installation
+
+1. Add this repository to your Home Assistant instance
+2. Install the Ultimate Guitar Scraper add-on
+3. Start the add-on
+4. Click "OPEN WEB UI" to access the interface (port 3000)
+
+## Usage
+
+The add-on provides a web interface where you can:
+- Search for tabs
+- View tabs without ads
+- Export tabs in various formats
+- Save your favorite tabs
+
+## Support
+
+Got questions or need help? [Open an issue on our GitHub repository](https://github.com/RFC1918-hub/Hassio-Add-ons/issues)
+
+## Disclaimer
+
+This add-on is not affiliated with, authorized, or endorsed by Ultimate-Guitar.com. It is provided for educational purposes only.
 
 This package allows you to programmatically fetch tabs and do pretty much whatever you want with them depending on the data structure of the response. 
 
