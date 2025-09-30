@@ -25,7 +25,7 @@ import {
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'http://192.168.0.73:3000';
 
 function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
