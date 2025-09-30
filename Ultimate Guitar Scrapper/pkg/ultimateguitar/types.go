@@ -1,17 +1,6 @@
 package ultimateguitar
 
-type Difficulty int32
-
-const (
-	DifficultyAbsoluteBeginner Difficulty = 1
-	DifficultyBeginner         Difficulty = 2
-	DifficultyIntermediate     Difficulty = 3
-	DifficultyAdvanced         Difficulty = 4
-	// DifficultyNovice       Difficulty = iota
-	// DifficultyIntermediate Difficulty = 1
-	// DifficultyAdvance      Difficulty = 2
-	// DifficultyNone         Difficulty = 3
-)
+// Difficulty types removed - unused
 
 type TabType int32
 
@@ -29,122 +18,11 @@ const (
 	TabTypeAll      TabType = 1000
 )
 
-type ChordKey string
+// ChordKey constants removed - unused
 
-const (
-	ChordKeyA         ChordKey = "A"
-	ChordKeyAsus4     ChordKey = "Asus4"
-	ChordKeyA6        ChordKey = "A6"
-	ChordKeyA7        ChordKey = "A7"
-	ChordKeyAmaj7     ChordKey = "Amaj7"
-	ChordKeyA7sus4    ChordKey = "A7sus4"
-	ChordKeyA_CSharp  ChordKey = "A/C#"
-	ChordKeyAm        ChordKey = "Am"
-	ChordKeyAm7       ChordKey = "Am7"
-	ChordKeyAm_C      ChordKey = "Am/C"
-	ChordKeyAm_D      ChordKey = "Am/D"
-	ChordKeyAm_E      ChordKey = "Am/E"
-	ChordKeyAm_F      ChordKey = "Am/F"
-	ChordKeyAm_FSharp ChordKey = "Am/F#"
-	ChordKeyAm_G      ChordKey = "Am/G"
-	ChordKeyAm_GSharp ChordKey = "Am/G#"
-	ChordKeyASharp    ChordKey = "A#"
-	ChordKeyB         ChordKey = "B"
-	ChordKeyB7        ChordKey = "B7"
-	ChordKeyBsus2     ChordKey = "Bsus2"
-	ChordKeyBm        ChordKey = "Bm"
-	ChordKeyBm9       ChordKey = "Bm9"
-	ChordKeyBm7       ChordKey = "Bm7"
-	ChordKeyBb        ChordKey = "Bb"
-	ChordKeyBb7       ChordKey = "Bb7"
-	ChordKeyBbm       ChordKey = "Bbm"
-	ChordKeyBbdim     ChordKey = "Bbdim"
-	ChordKeyBbdim7    ChordKey = "Bbdim7"
-	ChordKeyBbmaj7    ChordKey = "Bbmaj7"
-	ChordKeyC         ChordKey = "C"
-	ChordKeyCadd9     ChordKey = "Cadd9"
-	ChordKeyCsus2     ChordKey = "Csus2"
-	ChordKeyCmaj7     ChordKey = "Cmaj7"
-	ChordKeyC7        ChordKey = "C7"
-	ChordKeyCm        ChordKey = "Cm"
-	ChordKeyC_B       ChordKey = "C/B"
-	ChordKeyC_D       ChordKey = "C/D"
-	ChordKeyC_E       ChordKey = "C/E"
-	ChordKeyC_G       ChordKey = "C/G"
-	ChordKeyCSharp7   ChordKey = "C#7"
-	ChordKeyCSharp    ChordKey = "C#"
-	ChordKeyCSharpm   ChordKey = "C#m"
-	ChordKeyD         ChordKey = "D"
-	ChordKeyD5        ChordKey = "D5"
-	ChordKeyD7        ChordKey = "D7"
-	ChordKeyD7sus4    ChordKey = "D7sus4"
-	ChordKeyD7_A      ChordKey = "D7/A"
-	ChordKeyD7_FSharp ChordKey = "D7/F#"
-	ChordKeyDadd9     ChordKey = "Dadd9"
-	ChordKeyDM7       ChordKey = "DM7"
-	ChordKeyDmaj7     ChordKey = "Dmaj7"
-	ChordKeyDsus2     ChordKey = "Dsus2"
-	ChordKeyDsus4     ChordKey = "Dsus4"
-	ChordKeyDdim_F    ChordKey = "Ddim/F"
-	ChordKeyDm        ChordKey = "Dm"
-	ChordKeyDm_C      ChordKey = "Dm/C"
-	ChordKeyDm7       ChordKey = "Dm7"
-	ChordKeyD_FSharp  ChordKey = "D/F#"
-	ChordKeyDSharp    ChordKey = "D#"
-	ChordKeyDSharp5   ChordKey = "D#5"
-	ChordKeyDSharp7   ChordKey = "D#7"
-	ChordKeyDSharpdim ChordKey = "D#dim"
-	ChordKeyEb        ChordKey = "Eb"
-	ChordKeyEb5       ChordKey = "Eb5"
-	ChordKeyE         ChordKey = "E"
-	ChordKeyE5        ChordKey = "E5"
-	ChordKeyE7        ChordKey = "E7"
-	ChordKeyEsus2     ChordKey = "Esus2"
-	ChordKeyEsus4     ChordKey = "Esus4"
-	ChordKeyE7_GSharp ChordKey = "E7/G#"
-	ChordKeyEm        ChordKey = "Em"
-	ChordKeyEm7       ChordKey = "Em7"
-	ChordKeyEm_B      ChordKey = "Em/B"
-	ChordKeyEm_G      ChordKey = "Em/G"
-	ChordKeyE_GSharp  ChordKey = "E/G#"
-	ChordKeyF         ChordKey = "F"
-	ChordKeyF6        ChordKey = "F6"
-	ChordKeyF7        ChordKey = "F7"
-	ChordKeyF_A       ChordKey = "F/A"
-	ChordKeyF_C       ChordKey = "F/C"
-	ChordKeyF_G       ChordKey = "F/G"
-	ChordKeyFmaj7     ChordKey = "Fmaj7"
-	ChordKeyFm        ChordKey = "Fm"
-	ChordKeyFSharp    ChordKey = "F#"
-	ChordKeyFSharpm   ChordKey = "F#m"
-	ChordKeyFSharpm7  ChordKey = "F#m7"
-	ChordKeyG         ChordKey = "G"
-	ChordKeyG6        ChordKey = "G6"
-	ChordKeyG7        ChordKey = "G7"
-	ChordKeyGmaj7     ChordKey = "Gmaj7"
-	ChordKeyGsus4     ChordKey = "Gsus4"
-	ChordKeyGm        ChordKey = "Gm"
-	ChordKeyGm7       ChordKey = "Gm7"
-	ChordKeyG_B       ChordKey = "G/B"
-	ChordKeyG_Ab      ChordKey = "G/Ab"
-	ChordKeyG_D       ChordKey = "G/D"
-	ChordKeyGSharp    ChordKey = "G#"
-	ChordKeyGSharpm   ChordKey = "G#m"
-	ChordKeyAb        ChordKey = "Ab"
-)
+// LoginResult removed - unused
 
-// LoginResult struct - this is what we get when we login
-type LoginResult struct {
-	Token	string `json:"token"`
-
-}
-
-// TabListing struct - this is what we get when we fetch all the saved tabs of a user
-type TabListing struct {
-	Date		   int 	   	   `json:"date"`
-	Tab		   TabResult 	   `json:"tab"`
-	Transpose          int   	   `json:"transpose"`
-}
+// TabListing removed - unused
 
 // TabResult struct - this is what we get when we fetch a tab by id.
 type TabResult struct {
@@ -254,34 +132,11 @@ type Applicature struct {
 	} `json:"variations"`
 }
 
-type SearchResult struct {
-	Tabs    []Tab    `json:"tabs"`
-	Artists []string `json:"artists"`
-}
+// SearchResult removed - unused
 
-type ArtistName string
+// ArtistName removed - unused
 
-type Tab struct {
-	ID                 int64         `json:"id"`
-	SongID             int64         `json:"song_id"`
-	SongName           string        `json:"song_name"`
-	ArtistID           int64         `json:"artist_id"`
-	ArtistName         ArtistName    `json:"artist_name"`
-	Type               Type          `json:"type"`
-	Part               string        `json:"part"`
-	Version            int64         `json:"version"`
-	Votes              int64         `json:"votes"`
-	Rating             float64       `json:"rating"`
-	Date               string        `json:"date"`
-	Status             Status        `json:"status"`
-	PresetID           int64         `json:"preset_id"`
-	TabAccessType      TabAccessType `json:"tab_access_type"`
-	TpVersion          int64         `json:"tp_version"`
-	TonalityName       TonalityName  `json:"tonality_name"`
-	VersionDescription *string       `json:"version_description"`
-	Verified           int64         `json:"verified"`
-	Recording          Recording     `json:"recording"`
-}
+// Tab struct removed - unused
 
 type Performance struct {
 	Name string `json:"name"`

@@ -1,15 +1,11 @@
 package ultimateguitar
 
 import (
-	"bytes"
 	"crypto/md5"
 	"crypto/rand"
-	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -47,31 +43,7 @@ func (s *Scraper) generateDeviceID() {
 	s.DeviceID = fmt.Sprintf("%x", raw)[:16]
 }
 
-func (s *Scraper) GetServertime() (string, error) {
-
-	urlString := fmt.Sprintf("%s%s", ugAPIEndpoint, AppPaths.UG_SERVER_TIME)
-	req, err := http.NewRequest("GET", urlString, nil)
-	if err != nil {
-		return "", err
-	}
-
-	s.ConfigureHeaders(req)
-
-	res, err := s.Client.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	defer res.Body.Close()
-	var b bytes.Buffer
-
-	_, err = b.ReadFrom(res.Body)
-	if err != nil {
-		return "", err
-	}
-
-	return b.String(), nil
-}
+// GetServertime removed - unused function
 
 // Generate the X-UG-API-KEY for this request. The payload is the MD5 result of the concatenated value of device id + "2006-01-02:15" (utc) + "createLog()"
 func (s *Scraper) generateAPIKey() string {
@@ -83,20 +55,7 @@ func (s *Scraper) generateAPIKey() string {
 	return fmt.Sprintf("%x", hashed)
 }
 
-// SetProxy - Set a proxy for this scraper instance. Call again with SetProxy("") to remove.
-func (s *Scraper) SetProxy(proxy string) {
-	if len(proxy) > 1 {
-		proxyStr := proxy
-		proxyURL, _ := url.Parse(proxyStr)
-		transport := &http.Transport{
-			Proxy:           http.ProxyURL(proxyURL),
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		}
-		s.Client.Transport = transport
-	} else {
-		s.Client.Transport = &http.Transport{}
-	}
-}
+// SetProxy removed - unused function
 
 func (s *Scraper) ConfigureHeaders(req *http.Request) {
 	for key := range ugHeaders {
@@ -119,25 +78,4 @@ func New() Scraper {
 	return s
 }
 
-func (s *Scraper) Login(username string, password string) (string, error) {
-	urlString := fmt.Sprintf("%s%s?username=%s&password=%s", ugAPIEndpoint, AppPaths.LOGIN, username, password)
-	req, err := http.NewRequest("PUT", urlString, nil)
-	if err != nil {
-		return "Failed to create request", err
-	}
-	s.ConfigureHeaders(req)
-        res, err := http.DefaultClient.Do(req)
-        if err != nil || res.StatusCode != 200 {
-        	return "Failed to login", err
-        }
-	loginResult := LoginResult{}
-	err = json.NewDecoder(res.Body).Decode(&loginResult)
-	if err != nil {
-		return "Failed to get token", err
-	}
-	s.Token = loginResult.Token
-
-        defer res.Body.Close()
-
-	return "Success", err
-}
+// Login removed - unused function
