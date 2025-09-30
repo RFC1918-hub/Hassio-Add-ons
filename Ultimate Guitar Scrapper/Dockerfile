@@ -28,6 +28,9 @@ RUN chmod +x ultimate-guitar-scraper
 # Copy server files
 COPY n8n-wrapper.js .
 
+# Optional: Copy .env file (or pass environment variables at runtime)
+# COPY .env .
+
 # Copy the built frontend
 COPY --from=frontend-builder /app/frontend/build ./public
 

@@ -5,8 +5,11 @@ const axios = require('axios');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Security: Rate limiting
 const limiter = rateLimit({
@@ -23,19 +26,35 @@ const strictLimiter = rateLimit({
 
 app.use(limiter); // Apply to all requests
 
-// Security: Configure CORS to only allow specific origins
+// Security: Configure CORS with allowed origins from environment
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',') 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://chords-45ac23h.peakhq.co.za'];
+
+console.log('CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
     origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
+        
+        // Check if origin is in allowed list
+        const isAllowed = allowedOrigins.some(allowedOrigin => {
+            // Support wildcard subdomain matching
+            if (allowedOrigin.includes('*')) {
+                const pattern = allowedOrigin.replace(/\*/g, '.*').replace(/\./g, '\\.');
+                return new RegExp('^' + pattern + '$').test(origin);
+            }
+            return allowedOrigin === origin;
+        });
+        
+        if (!isAllowed) {
+            console.error(`CORS blocked origin: ${origin}. Allowed origins:`, allowedOrigins);
             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
             return callback(new Error(msg), false);
         }
+        
+        console.log(`CORS allowed origin: ${origin}`);
         return callback(null, true);
     },
     credentials: true
