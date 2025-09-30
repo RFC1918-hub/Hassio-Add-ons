@@ -3,12 +3,45 @@ const { exec } = require('child_process');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const port = 3000;
 
-app.use(cors());
-app.use(express.json());
+// Security: Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.'
+});
+
+const strictLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10, // Limit to 10 Google Drive uploads per 15 minutes
+    message: 'Too many uploads, please try again later.'
+});
+
+app.use(limiter); // Apply to all requests
+
+// Security: Configure CORS to only allow specific origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    ? process.env.ALLOWED_ORIGINS.split(',') 
+    : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true
+}));
+
+app.use(express.json({ limit: '1mb' })); // Limit payload size
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,19 +112,33 @@ app.post('/onsong', (req, res) => {
     if (!id) {
         return res.status(400).send('Missing required parameter: id');
     }
-    exec(`./ultimate-guitar-scraper onsong -id ${id}`, (error, stdout, stderr) => {
+    
+    // Security: Validate ID is a number to prevent command injection
+    const tabId = parseInt(id, 10);
+    if (isNaN(tabId) || tabId <= 0) {
+        return res.status(400).send('Invalid tab ID');
+    }
+    
+    exec(`./ultimate-guitar-scraper onsong -id ${tabId}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
-            return res.status(500).send(stderr);
+            return res.status(500).send('Failed to retrieve OnSong format');
         }
         res.send(stdout);
     });
 });
 
 // Google Drive proxy endpoint
-app.post('/send-to-drive', async (req, res) => {
+app.post('/send-to-drive', strictLimiter, async (req, res) => {
     try {
-        const webhookUrl = 'https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712';
+        // Security: Get webhook URL from environment variable
+        const webhookUrl = process.env.N8N_WEBHOOK_URL || 'https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712';
+        
+        // Security: Validate required fields
+        const { content, song, artist, id } = req.body;
+        if (!content || !song || !artist || !id) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
         
         console.log('Forwarding request to n8n webhook:', webhookUrl);
         console.log('Request body:', JSON.stringify(req.body, null, 2));
@@ -100,7 +147,8 @@ app.post('/send-to-drive', async (req, res) => {
         const response = await axios.post(webhookUrl, req.body, {
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            timeout: 10000 // 10 second timeout
         });
         
         console.log('n8n webhook response:', response.status, response.data);

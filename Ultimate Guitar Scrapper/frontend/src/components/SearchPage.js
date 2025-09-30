@@ -25,7 +25,7 @@ import {
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 
-const API_URL = 'chords-45ac23h.peakhq.co.za';
+const API_URL = 'http://localhost:3000';
 
 function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');

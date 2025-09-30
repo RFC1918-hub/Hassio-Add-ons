@@ -34,5 +34,10 @@ COPY --from=frontend-builder /app/frontend/build ./public
 # Expose port
 EXPOSE 3000
 
+# Environment variables
+ENV NODE_ENV=production
+ENV N8N_WEBHOOK_URL=""
+ENV ALLOWED_ORIGINS=""
+
 # Start the Node.js wrapper
 CMD ["node", "n8n-wrapper.js"]
