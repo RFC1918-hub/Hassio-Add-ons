@@ -25,7 +25,9 @@ import {
 import axios from 'axios';
 import debounce from 'lodash/debounce';
 
-const API_URL = 'http://localhost:3000';
+// Use relative URL for API calls (same domain as frontend)
+// This will work for both localhost and production
+const API_URL = window.location.origin;
 
 function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
