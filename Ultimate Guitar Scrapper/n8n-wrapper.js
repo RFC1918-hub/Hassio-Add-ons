@@ -101,15 +101,52 @@ app.get('/search', async (req, res) => {
         const store = JSON.parse(decode(match[1]));
         const results = store.store.page.data.results || [];
 
-    // Pick top-rated per artist
+    // Pick top-rated Chords version per artist (avoid Pro versions)
     const topResults = {};
     results.forEach(r => {
       const artist = r.artist_name || 'Unknown';
-      if (!topResults[artist] || r.rating > (topResults[artist].rating || 0)) {
+      const current = topResults[artist];
+
+      // Prefer Chords type over Pro/other types
+      const isChords = r.type && r.type.toLowerCase() === 'chords';
+      const currentIsChords = current && current.type && current.type.toLowerCase() === 'chords';
+
+      if (!current) {
+        // No result for this artist yet
         topResults[artist] = {
           id: r.id,
           song: r.song_name,
-          artist: r.artist_name,  // Added artist to the response
+          artist: r.artist_name,
+          type: r.type,
+          url: r.tab_url,
+          rating: r.rating
+        };
+      } else if (isChords && !currentIsChords) {
+        // Replace non-Chords with Chords version
+        topResults[artist] = {
+          id: r.id,
+          song: r.song_name,
+          artist: r.artist_name,
+          type: r.type,
+          url: r.tab_url,
+          rating: r.rating
+        };
+      } else if (isChords && currentIsChords && r.rating > (current.rating || 0)) {
+        // Both are Chords, pick higher rated
+        topResults[artist] = {
+          id: r.id,
+          song: r.song_name,
+          artist: r.artist_name,
+          type: r.type,
+          url: r.tab_url,
+          rating: r.rating
+        };
+      } else if (!isChords && !currentIsChords && r.rating > (current.rating || 0)) {
+        // Neither are Chords, pick higher rated (fallback)
+        topResults[artist] = {
+          id: r.id,
+          song: r.song_name,
+          artist: r.artist_name,
           type: r.type,
           url: r.tab_url,
           rating: r.rating

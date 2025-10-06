@@ -8,3 +8,7 @@ out.html
 client
 *.db
 *.wav
+
+# Claude Code related files and folders
+.claude/
+CLAUDE.md
