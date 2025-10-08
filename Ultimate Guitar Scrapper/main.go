@@ -13,7 +13,7 @@ func main() {
 	app.Before = cmd.BeforeCommand
 	app.After = cmd.AfterCommand
 	app.Name = "ug"
-	app.Version = "0.0.1"
+	app.Version = "3.4.2"
 	app.Commands = []cli.Command{
 		cmd.Onsong,
 	}

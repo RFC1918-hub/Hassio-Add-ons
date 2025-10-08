@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 
 	"github.com/Pilfer/ultimate-guitar-scraper/pkg/ultimateguitar"
@@ -49,14 +50,7 @@ func onsong(c *cli.Context) {
 	tabOut = strings.ReplaceAll(tabOut, "[/tab]", "")
 	tabOut = strings.ReplaceAll(tabOut, "[ch]", "[")
 	tabOut = strings.ReplaceAll(tabOut, "[/ch]", "]")
-	tabOut = strings.ReplaceAll(tabOut, "[Verse 1]", "Verse 1:")
-	tabOut = strings.ReplaceAll(tabOut, "[Verse 2]", "Verse 2:")
-	tabOut = strings.ReplaceAll(tabOut, "[Verse 3]", "Verse 3:")
-	tabOut = strings.ReplaceAll(tabOut, "[Verse 4]", "Verse 4:")
-	tabOut = strings.ReplaceAll(tabOut, "[Chorus]", "Chorus:")
-	tabOut = strings.ReplaceAll(tabOut, "[Bridge]", "Bridge:")
-	tabOut = strings.ReplaceAll(tabOut, "[Intro]", "Intro:")
-	tabOut = strings.ReplaceAll(tabOut, "[Outro]", "Outro:")
-	tabOut = strings.ReplaceAll(tabOut, "[Turnaround]", "Turnaround:")
+	re := regexp.MustCompile(`\[(.*?)\]`)
+	tabOut = re.ReplaceAllString(tabOut, "$1:")
 	fmt.Println(tabOut)
 }

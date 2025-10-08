@@ -10,7 +10,13 @@ Ultimate-Guitar.com is the world's largest online database of guitar tablature. 
 - Search and fetch tabs by ID or URL
 - Export tabs in various formats
 - Built with Go and Node.js for optimal performance
-- Version 3.0.0
+- Version 3.0.1
+
+## OnSong Format
+
+This add-on now supports a new OnSong format, which provides a clean, text-based representation of the song, including the title, artist, key, tempo, and formatted chords and sections. To use this format, run the following command:
+
+`./ultimate-guitar-scraper onsong -id {tabId}`
 
 ## Installation
 
