@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# Start n8n service
+# ==============================================================================
+
+bashio::log.info "Preparing n8n data directory..."
+
+# Ensure /data directory exists and has correct permissions
+mkdir -p /data
+chown -R node:node /data
+
+bashio::log.info "Starting n8n..."
+
+# Run n8n as the node user
+exec s6-setuidgid node n8n start

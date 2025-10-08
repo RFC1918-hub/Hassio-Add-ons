@@ -1,5 +1,5 @@
 name: n8n - Workflow Automation
-version: 1.115.0
+version: 1.115.1
 slug: n8n
 description: n8n is an extendable workflow automation tool.
 url: https://github.com/RFC1918-hub/Hassio-Add-ons
@@ -11,14 +11,10 @@ arch:
 init: false
 map:
   - addon_config:rw
-privileged: []
 ports:
   5678/tcp: 5678
 ports_description:
   5678/tcp: n8n web interface
-build_from:
-  amd64: ghcr.io/your-repo/n8n-addon:latest-amd64
-  aarch64: ghcr.io/your-repo/n8n-addon:latest-aarch64
 environment:
   GENERIC_TIMEZONE: "Africa/Johannesburg"
   TZ: "Africa/Johannesburg"

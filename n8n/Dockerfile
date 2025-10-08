@@ -1,14 +1,30 @@
-ARG BUILD_FROM=docker.n8n.io/n8nio/n8n:latest
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:16.3.2
 FROM ${BUILD_FROM}
 
-# Switch to root to set permissions
-USER root
+# Install Node.js and dependencies
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev
 
-# Create the data directory and set proper ownership
-RUN mkdir -p /data/.n8n && chown -R node:node /data
+# Install n8n globally
+RUN npm install -g n8n
 
-# Set n8n to use /data for persistence
-ENV N8N_USER_FOLDER=/data
+# Create node user if it doesn't exist
+RUN addgroup -g 1000 node && \
+    adduser -D -u 1000 -G node node
 
-# Switch back to node user
-USER node
+# Copy service script
+COPY rootfs /
+
+# Make the run script executable
+RUN chmod a+x /etc/services.d/n8n/run
+
+# Set working directory
+WORKDIR /data
