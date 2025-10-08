@@ -44,13 +44,12 @@ func onsong(c *cli.Context) {
 	fmt.Println("Key: " + tab.TonalityName)
 	fmt.Println("Tempo: 100 BPM") // Placeholder for tempo
 	fmt.Println("")
-
 	// Replace the syntax delimiters for OnSong
 	tabOut := strings.ReplaceAll(tab.Content, "[tab]", "")
 	tabOut = strings.ReplaceAll(tabOut, "[/tab]", "")
 	tabOut = strings.ReplaceAll(tabOut, "[ch]", "[")
 	tabOut = strings.ReplaceAll(tabOut, "[/ch]", "]")
-	re := regexp.MustCompile(`\[(.*?)\]`)
+	re := regexp.MustCompile(`(?m)^\[([^\]]+)\]\r?$`)
 	tabOut = re.ReplaceAllString(tabOut, "$1:")
 	fmt.Println(tabOut)
 }
