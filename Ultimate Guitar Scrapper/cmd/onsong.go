@@ -38,10 +38,10 @@ func onsong(c *cli.Context) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Title:", tab.SongName)
-	fmt.Println("Artist:", tab.ArtistName)
-	fmt.Println("Key:", tab.TonalityName)
-	fmt.Println("Tempo: 100") // Placeholder for tempo
+	fmt.Println(tab.SongName)
+	fmt.Println(tab.ArtistName)
+	fmt.Println("Key: " + tab.TonalityName)
+	fmt.Println("Tempo: 100 BPM") // Placeholder for tempo
 	fmt.Println("")
 
 	// Replace the syntax delimiters for OnSong
