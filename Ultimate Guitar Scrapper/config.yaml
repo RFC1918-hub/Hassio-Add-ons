@@ -20,13 +20,7 @@ options:
   webhook_url: "https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712"
   allowed_origins: "http://localhost:3000,http://127.0.0.1:3000,https://chords-45ac23h.peakhq.co.za"
 schema:
-  webhook_url:
-    type: str
-    required: false
-    description: "n8n webhook URL for Google Drive integration"
-  allowed_origins:
-    type: str
-    required: false
-    description: "Comma-separated list of allowed CORS origins"
+  webhook_url: str?
+  allowed_origins: str?
 environment:
   TZ: "Africa/Johannesburg"
