@@ -1,5 +1,5 @@
 name: Ultimate Guitar Scraper
-version: 3.4.4
+version: 3.5.0
 slug: ultimate-guitar-scraper
 description: A web scraper for Ultimate Guitar tabs and chords
 url: https://github.com/RFC1918-hub/Hassio-Add-ons
@@ -16,5 +16,17 @@ ports:
   3000/tcp: 3000
 ports_description:
   3000/tcp: Web interface
+options:
+  webhook_url: "https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712"
+  allowed_origins: "http://localhost:3000,http://127.0.0.1:3000,https://chords-45ac23h.peakhq.co.za"
+schema:
+  webhook_url:
+    type: str
+    required: false
+    description: "n8n webhook URL for Google Drive integration"
+  allowed_origins:
+    type: str
+    required: false
+    description: "Comma-separated list of allowed CORS origins"
 environment:
   TZ: "Africa/Johannesburg"

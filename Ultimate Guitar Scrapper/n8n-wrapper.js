@@ -4,9 +4,24 @@ const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
 const rateLimit = require('express-rate-limit');
+const fs = require('fs');
 
 // Load environment variables from .env file
 require('dotenv').config();
+
+// Load Home Assistant add-on options
+let addonOptions = {};
+try {
+    const optionsPath = '/data/options.json';
+    if (fs.existsSync(optionsPath)) {
+        addonOptions = JSON.parse(fs.readFileSync(optionsPath, 'utf8'));
+        console.log('Loaded add-on options:', addonOptions);
+    } else {
+        console.log('No options.json found, using defaults');
+    }
+} catch (error) {
+    console.error('Error loading add-on options:', error);
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,10 +41,12 @@ const strictLimiter = rateLimit({
 
 app.use(limiter); // Apply to all requests
 
-// Security: Configure CORS with allowed origins from environment
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://chords-45ac23h.peakhq.co.za'];
+// Security: Configure CORS with allowed origins from add-on config or environment
+const allowedOrigins = addonOptions.allowed_origins
+    ? addonOptions.allowed_origins.split(',').map(o => o.trim())
+    : process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+        : ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://chords-45ac23h.peakhq.co.za'];
 
 console.log('CORS allowed origins:', allowedOrigins);
 
@@ -187,9 +204,11 @@ app.post('/onsong', (req, res) => {
 // Google Drive proxy endpoint
 app.post('/send-to-drive', strictLimiter, async (req, res) => {
     try {
-        // Security: Get webhook URL from environment variable
-        const webhookUrl = process.env.N8N_WEBHOOK_URL || 'https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712';
-        
+        // Security: Get webhook URL from add-on config, environment variable, or default
+        const webhookUrl = addonOptions.webhook_url
+            || process.env.N8N_WEBHOOK_URL
+            || 'https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712';
+
         // Security: Validate required fields
         const { content, song, artist, id } = req.body;
         if (!content || !song || !artist || !id) {
