@@ -35,7 +35,7 @@ const limiter = rateLimit({
 
 const strictLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit to 10 Google Drive uploads per 15 minutes
+    max: 50, // Limit to 50 Google Drive uploads per 15 minutes
     message: 'Too many uploads, please try again later.'
 });
 
