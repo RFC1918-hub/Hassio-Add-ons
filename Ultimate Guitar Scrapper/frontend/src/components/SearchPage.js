@@ -36,6 +36,8 @@ function SearchPage() {
   const [selectedTab, setSelectedTab] = useState(null);
   const [onsongContent, setOnsongContent] = useState('');
   const [sendingToDrive, setSendingToDrive] = useState(false);
+  const [worshipchordsUrl, setWorshipchordsUrl] = useState('');
+  const [loadingWorshipchords, setLoadingWorshipchords] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
@@ -120,20 +122,109 @@ function SearchPage() {
     }
   };
 
+  const handleGetWorshipchords = async () => {
+    if (!worshipchordsUrl) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a worshipchords.com URL',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (!worshipchordsUrl.includes('worshipchords.com')) {
+      toast({
+        title: 'Error',
+        description: 'URL must be from worshipchords.com',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      setLoadingWorshipchords(true);
+      const response = await axios.post(`${API_URL}/worshipchords`, { url: worshipchordsUrl });
+      
+      // Parse the response to extract song info
+      const lines = response.data.split('\n');
+      const song = lines[0] || 'Unknown Song';
+      const artist = lines[1] || 'Unknown Artist';
+      
+      setSelectedTab({ song, artist, url: worshipchordsUrl });
+      setOnsongContent(response.data);
+      onOpen();
+    } catch (error) {
+      toast({
+        title: 'Error getting worshipchords format',
+        description: typeof error.response?.data === 'string' 
+          ? error.response.data 
+          : error.response?.data?.message || error.message || 'Failed to get worshipchords format',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setLoadingWorshipchords(false);
+    }
+  };
+
   return (
     <Box>
       <VStack spacing={8} align="stretch">
-        <Heading color="gray.100">Ultimate Guitar Search</Heading>
-        <Input
-          placeholder="Search for a song..."
-          size="lg"
-          value={searchTerm}
-          onChange={handleSearch}
-          bg="gray.800"
-          borderColor="gray.600"
-          _hover={{ borderColor: 'purple.500' }}
-          _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-        />
+        <Heading color="gray.100">Chord Scraper</Heading>
+        
+        {/* Ultimate Guitar Section */}
+        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
+          <VStack spacing={4} align="stretch">
+            <Heading size="md" color="purple.300">Ultimate Guitar</Heading>
+            <Input
+              placeholder="Search for a song..."
+              size="lg"
+              value={searchTerm}
+              onChange={handleSearch}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: 'purple.500' }}
+              _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+            />
+          </VStack>
+        </Box>
+
+        {/* Worshipchords Section */}
+        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
+          <VStack spacing={4} align="stretch">
+            <Heading size="md" color="blue.300">Worshipchords.com</Heading>
+            <HStack>
+              <Input
+                placeholder="Paste worshipchords.com URL..."
+                size="lg"
+                value={worshipchordsUrl}
+                onChange={(e) => setWorshipchordsUrl(e.target.value)}
+                bg="gray.700"
+                borderColor="gray.600"
+                _hover={{ borderColor: 'blue.500' }}
+                _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
+              />
+              <Button
+                colorScheme="blue"
+                size="lg"
+                onClick={handleGetWorshipchords}
+                isLoading={loadingWorshipchords}
+                loadingText="Fetching..."
+                minW="150px"
+              >
+                Get Chords
+              </Button>
+            </HStack>
+            <Text fontSize="sm" color="gray.400">
+              Example: https://worshipchords.com/none-like-jehovah-chords/
+            </Text>
+          </VStack>
+        </Box>
 
         {loading && (
           <Box textAlign="center">

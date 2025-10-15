@@ -13,9 +13,10 @@ func main() {
 	app.Before = cmd.BeforeCommand
 	app.After = cmd.AfterCommand
 	app.Name = "ug"
-	app.Version = "3.4.2"
+	app.Version = "3.5.0"
 	app.Commands = []cli.Command{
 		cmd.Onsong,
+		cmd.Worshipchords,
 	}
 
 	err := app.Run(os.Args)

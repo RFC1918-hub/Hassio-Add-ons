@@ -6,6 +6,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/timiskhakov/music v0.0.0-20220505091659-26aa804b7c60
 	github.com/urfave/cli v1.22.1
+	golang.org/x/net v0.17.0
 )
 
 require (

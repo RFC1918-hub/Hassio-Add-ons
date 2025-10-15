@@ -8,15 +8,34 @@ Ultimate-Guitar.com is the world's largest online database of guitar tablature. 
 
 - Clean, ad-free interface for Ultimate Guitar tabs
 - Search and fetch tabs by ID or URL
-- Export tabs in various formats
+- **NEW: Worshipchords.com integration** - Fetch worship song chords from worshipchords.com
+- Export tabs in OnSong format
+- Send chords directly to Google Drive via webhook
 - Built with Go and Node.js for optimal performance
-- Version 3.0.1
+- Version 3.5.0
 
 ## OnSong Format
 
-This add-on now supports a new OnSong format, which provides a clean, text-based representation of the song, including the title, artist, key, tempo, and formatted chords and sections. To use this format, run the following command:
+This add-on supports OnSong format, which provides a clean, text-based representation of songs, including the title, artist, key, tempo, and formatted chords and sections.
 
-`./ultimate-guitar-scraper onsong -id {tabId}`
+### Ultimate Guitar
+To fetch from Ultimate Guitar, run:
+```
+./ultimate-guitar-scraper onsong -id {tabId}
+```
+
+### Worshipchords.com (NEW!)
+To fetch from Worshipchords.com, run:
+```
+./ultimate-guitar-scraper worshipchords -url "https://worshipchords.com/song-name-chords/"
+```
+
+The worshipchords command will:
+- Fetch the song from the provided URL
+- Parse the chord content and lyrics
+- Format it in OnSong-compatible format
+- Extract the song title, artist, and key
+- Output formatted chords ready for OnSong or Google Drive upload
 
 ## Installation
 

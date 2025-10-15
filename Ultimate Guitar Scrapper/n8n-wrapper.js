@@ -201,6 +201,31 @@ app.post('/onsong', (req, res) => {
     });
 });
 
+// Worshipchords endpoint
+app.post('/worshipchords', (req, res) => {
+    const { url } = req.body;
+    if (!url) {
+        return res.status(400).send('Missing required parameter: url');
+    }
+    
+    // Security: Validate URL is from worshipchords.com to prevent command injection
+    if (!url.includes('worshipchords.com')) {
+        return res.status(400).send('Invalid URL: must be from worshipchords.com');
+    }
+    
+    // Escape the URL for shell command
+    const escapedUrl = url.replace(/"/g, '\\"');
+    
+    exec(`./ultimate-guitar-scraper worshipchords -url "${escapedUrl}"`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            console.error(`stderr: ${stderr}`);
+            return res.status(500).send('Failed to retrieve worshipchords format');
+        }
+        res.send(stdout);
+    });
+});
+
 // Google Drive proxy endpoint
 app.post('/send-to-drive', strictLimiter, async (req, res) => {
     try {
