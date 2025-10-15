@@ -226,6 +226,7 @@ func formatChordContent(content string) string {
 	var formatted []string
 	var lastWasEmpty bool
 	var lastWasSectionHeader bool
+	var lastWasChordLine bool
 	
 	// Regex patterns for chord detection and section headers
 	// Match section headers like "Verse 1", "Chorus", "Bridge", etc.
@@ -246,6 +247,10 @@ func formatChordContent(content string) string {
 			if lastWasSectionHeader {
 				continue
 			}
+			// Skip blank line right after chord line (chords should be directly above lyrics)
+			if lastWasChordLine {
+				continue
+			}
 			// Only allow single blank lines between content
 			if !lastWasEmpty {
 				formatted = append(formatted, "")
@@ -260,6 +265,7 @@ func formatChordContent(content string) string {
 			// Add colon to section headers
 			formatted = append(formatted, cleaned+":")
 			lastWasSectionHeader = true
+			lastWasChordLine = false
 			continue
 		}
 		lastWasSectionHeader = false
@@ -270,9 +276,11 @@ func formatChordContent(content string) string {
 			// Wrap each chord in brackets
 			wrappedLine := wrapChordsInBrackets(cleaned)
 			formatted = append(formatted, wrappedLine)
+			lastWasChordLine = true
 		} else {
 			// Regular lyric line or other content
 			formatted = append(formatted, cleaned)
+			lastWasChordLine = false
 		}
 	}
 
