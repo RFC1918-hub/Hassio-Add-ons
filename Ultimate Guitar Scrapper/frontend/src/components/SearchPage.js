@@ -150,11 +150,26 @@ function SearchPage() {
       const response = await axios.post(`${API_URL}/worshipchords`, { url: worshipchordsUrl });
       
       // Parse the response to extract song info
+      // Format: Line 1 = Song Title, Line 2 = Artist, Line 3 = Key/Tempo info
       const lines = response.data.split('\n');
-      const song = lines[0] || 'Unknown Song';
-      const artist = lines[1] || 'Unknown Artist';
+      let song = 'Unknown Song';
+      let artist = 'Unknown Artist';
       
-      setSelectedTab({ song, artist, url: worshipchordsUrl });
+      // Extract song title (first non-empty line)
+      if (lines.length > 0 && lines[0].trim()) {
+        song = lines[0].trim();
+      }
+      
+      // Extract artist (second non-empty line, skip if it's "Key:" or "Tempo:")
+      if (lines.length > 1 && lines[1].trim() && 
+          !lines[1].startsWith('Key:') && !lines[1].startsWith('Tempo:')) {
+        artist = lines[1].trim();
+      }
+      
+      // Create a unique ID from the URL for tracking
+      const id = 'wc-' + worshipchordsUrl.split('/').filter(Boolean).pop().replace('-chords', '');
+      
+      setSelectedTab({ song, artist, id, url: worshipchordsUrl });
       setOnsongContent(response.data);
       onOpen();
     } catch (error) {
