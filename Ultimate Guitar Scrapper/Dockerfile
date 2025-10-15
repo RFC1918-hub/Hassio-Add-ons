@@ -1,8 +1,10 @@
 # Stage 1: Build Go binary
 FROM golang:1.20-alpine AS go-builder
 WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN go build -o ultimate-guitar-scraper
+RUN go mod tidy && go build -o ultimate-guitar-scraper
 
 # Stage 2: Build React frontend
 FROM node:18-alpine AS frontend-builder
