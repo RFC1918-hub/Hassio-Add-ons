@@ -225,6 +225,7 @@ func formatChordContent(content string) string {
 	lines := strings.Split(content, "\n")
 	var formatted []string
 	var lastWasEmpty bool
+	var lastWasSectionHeader bool
 	
 	// Regex patterns for chord detection and section headers
 	// Match section headers like "Verse 1", "Chorus", "Bridge", etc.
@@ -239,8 +240,13 @@ func formatChordContent(content string) string {
 			continue
 		}
 
-		// Handle empty lines - only allow single blank lines
+		// Handle empty lines
 		if cleaned == "" {
+			// Skip blank line right after section header
+			if lastWasSectionHeader {
+				continue
+			}
+			// Only allow single blank lines between content
 			if !lastWasEmpty {
 				formatted = append(formatted, "")
 				lastWasEmpty = true
@@ -253,8 +259,10 @@ func formatChordContent(content string) string {
 		if sectionPattern.MatchString(cleaned) {
 			// Add colon to section headers
 			formatted = append(formatted, cleaned+":")
+			lastWasSectionHeader = true
 			continue
 		}
+		lastWasSectionHeader = false
 
 		// Check if this line looks like a chord line
 		// Apply chord wrapping to lines that are primarily chords
@@ -270,6 +278,9 @@ func formatChordContent(content string) string {
 
 	// Join lines back together
 	result := strings.Join(formatted, "\n")
+
+	// Final cleanup: ensure no more than one consecutive blank line
+	result = regexp.MustCompile(`\n\n+`).ReplaceAllString(result, "\n\n")
 
 	return strings.TrimSpace(result)
 }
@@ -300,11 +311,6 @@ func isChordLine(line string) bool {
 		return false
 	}
 	
-	// If line contains common lyric words at the beginning or end, probably lyrics
-	if containsCommonWords(trimmed) {
-		return false
-	}
-	
 	// Split line into tokens (words)
 	tokens := strings.Fields(trimmed)
 	if len(tokens) == 0 {
@@ -322,18 +328,31 @@ func isChordLine(line string) bool {
 	}
 	
 	// If ALL tokens are chords, definitely a chord line
-	if chordCount == len(tokens) {
+	if chordCount == len(tokens) && chordCount > 0 {
 		return true
+	}
+	
+	// Special case: Line with significant leading spaces and only chords (chord positioning)
+	// e.g., "       A" or "    D          A"
+	// This is very common in chord charts where chords are positioned above lyrics
+	leadingSpaces := len(line) - len(strings.TrimLeft(line, " \t"))
+	if leadingSpaces >= 3 && chordCount == len(tokens) && chordCount > 0 {
+		return true
+	}
+	
+	// If line has lots of internal spacing and all non-space content is chords
+	// This catches lines like "    D          A" where spaces position chords
+	if chordCount > 0 && len(line) >= len(trimmed)*1.5 && chordCount == len(tokens) {
+		return true
+	}
+	
+	// Check if line contains common lyric words - if so, NOT a chord line
+	if containsCommonWords(trimmed) {
+		return false
 	}
 	
 	// If more than 50% of tokens are chords and no common words, likely a chord line
 	if chordCount > 0 && float64(chordCount)/float64(len(tokens)) >= 0.5 {
-		return true
-	}
-	
-	// Special case: Line with lots of spaces and few tokens (chord positioning line)
-	// e.g., "       A" or "    D          A"
-	if len(tokens) <= 3 && chordCount > 0 && len(line) > len(trimmed)*2 {
 		return true
 	}
 	
