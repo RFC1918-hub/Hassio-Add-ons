@@ -53,7 +53,7 @@ func onsong(c *cli.Context) {
 
 	// Convert section headers from [Section Name] to Section Name:
 	// Match lines that contain only a section label in brackets
-	sectionPattern := regexp.MustCompile(`(?mi)^\[(Intro|Verse\s*\d*|Chorus|Pre-Chorus|Bridge|Instrumental|Interlude|Turnaround|Outro|Tag|Ending|Solo|Break|Refrain|Coda|Hook|Vamp|Outro Chorus)\]\s*$`)
+	sectionPattern := regexp.MustCompile(`(?mi)^\[(Intro|Verse\s*\d*|Chorus\s*\d*|Pre-Chorus|Bridge|Instrumental|Interlude|Turnaround|Outro|Tag|Ending|Solo|Break|Refrain|Coda|Hook|Vamp|Outro Chorus)\]\s*$`)
 	tabOut = sectionPattern.ReplaceAllString(tabOut, "$1:")
 
 	fmt.Println(tabOut)

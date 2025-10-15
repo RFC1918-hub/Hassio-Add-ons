@@ -224,17 +224,40 @@ func formatChordContent(content string) string {
 	// Split into lines
 	lines := strings.Split(content, "\n")
 	var formatted []string
+	
+	// Regex patterns for chord detection and section headers
+	// Match section headers like "Verse 1", "Chorus", "Bridge", etc.
+	sectionPattern := regexp.MustCompile(`^(Intro|Verse\s*\d*|Chorus\s*\d*|Pre-Chorus|Bridge|Instrumental|Interlude|Turnaround|Outro|Tag|Ending|Solo|Break|Refrain|Coda|Hook|Vamp|Outro Chorus)\s*$`)
 
 	for _, line := range lines {
 		// Trim whitespace from the right
 		cleaned := strings.TrimRight(line, " \t")
 
-		// Skip empty lines at the beginning, but preserve them within content
+		// Skip empty lines at the beginning
 		if len(formatted) == 0 && cleaned == "" {
 			continue
 		}
 
-		formatted = append(formatted, cleaned)
+		// Check if this is a section header
+		if sectionPattern.MatchString(cleaned) {
+			// Add colon to section headers
+			formatted = append(formatted, cleaned+":")
+			continue
+		}
+
+		// Check if this line looks like a chord line
+		// Heuristics: 
+		// 1. Contains chord patterns
+		// 2. Doesn't contain common lyric words OR is very short with mostly chords
+		// 3. Has specific spacing patterns typical of chord positioning
+		if containsChords(cleaned) && isChordLine(cleaned) {
+			// Wrap each chord in brackets
+			wrappedLine := wrapChordsInBrackets(cleaned)
+			formatted = append(formatted, wrappedLine)
+		} else {
+			// Regular lyric line or other content
+			formatted = append(formatted, cleaned)
+		}
 	}
 
 	// Join lines back together
@@ -244,4 +267,75 @@ func formatChordContent(content string) string {
 	result = regexp.MustCompile(`\n{3,}`).ReplaceAllString(result, "\n\n")
 
 	return strings.TrimSpace(result)
+}
+
+// wrapChordsInBrackets wraps chord symbols in brackets
+func wrapChordsInBrackets(line string) string {
+	// Pattern to match chord symbols more comprehensively
+	// Matches: A, Am, A7, Amaj7, Asus4, A/C#, etc.
+	chordPattern := regexp.MustCompile(`\b([A-G][#b]?(?:maj|min|m|sus|aug|dim|add)?\d*(?:/[A-G][#b]?)?)\b`)
+	
+	// Replace each chord with [chord]
+	result := chordPattern.ReplaceAllString(line, "[$1]")
+	
+	return result
+}
+
+// containsChords checks if a line contains chord patterns
+func containsChords(line string) bool {
+	chordPattern := regexp.MustCompile(`\b([A-G][#b]?(?:maj|min|m|sus|aug|dim|add)?\d*(?:/[A-G][#b]?)?)\b`)
+	return chordPattern.MatchString(line)
+}
+
+// isChordLine determines if a line is primarily chords vs lyrics
+func isChordLine(line string) bool {
+	// If line is empty, not a chord line
+	if strings.TrimSpace(line) == "" {
+		return false
+	}
+	
+	// If line contains common lyric words, probably not a pure chord line
+	if containsCommonWords(line) {
+		return false
+	}
+	
+	// Count chord-like tokens vs total tokens
+	tokens := strings.Fields(line)
+	if len(tokens) == 0 {
+		return false
+	}
+	
+	chordPattern := regexp.MustCompile(`^[A-G][#b]?(?:maj|min|m|sus|aug|dim|add)?\d*(?:/[A-G][#b]?)?$`)
+	chordCount := 0
+	
+	for _, token := range tokens {
+		if chordPattern.MatchString(token) {
+			chordCount++
+		}
+	}
+	
+	// If more than 60% of tokens are chords, treat as chord line
+	// Or if all tokens are chords
+	return float64(chordCount)/float64(len(tokens)) > 0.6
+}
+
+// containsCommonWords checks if line contains common lyric words (to distinguish from chord lines)
+func containsCommonWords(line string) bool {
+	// Common words that appear in lyrics but not in chord lines
+	commonWords := []string{
+		"the", "and", "you", "your", "my", "me", "i", "a", "to", "in", "of", "is", "it",
+		"for", "on", "with", "that", "this", "from", "all", "will", "can", "when", "where",
+		"who", "what", "have", "has", "had", "been", "was", "were", "are", "be",
+	}
+	
+	lowerLine := strings.ToLower(line)
+	for _, word := range commonWords {
+		if strings.Contains(lowerLine, " "+word+" ") || 
+		   strings.HasPrefix(lowerLine, word+" ") || 
+		   strings.HasSuffix(lowerLine, " "+word) ||
+		   lowerLine == word {
+			return true
+		}
+	}
+	return false
 }
