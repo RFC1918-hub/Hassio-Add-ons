@@ -224,6 +224,7 @@ func formatChordContent(content string) string {
 	// Split into lines
 	lines := strings.Split(content, "\n")
 	var formatted []string
+	var lastWasEmpty bool
 	
 	// Regex patterns for chord detection and section headers
 	// Match section headers like "Verse 1", "Chorus", "Bridge", etc.
@@ -238,6 +239,16 @@ func formatChordContent(content string) string {
 			continue
 		}
 
+		// Handle empty lines - only allow single blank lines
+		if cleaned == "" {
+			if !lastWasEmpty {
+				formatted = append(formatted, "")
+				lastWasEmpty = true
+			}
+			continue
+		}
+		lastWasEmpty = false
+
 		// Check if this is a section header
 		if sectionPattern.MatchString(cleaned) {
 			// Add colon to section headers
@@ -246,11 +257,8 @@ func formatChordContent(content string) string {
 		}
 
 		// Check if this line looks like a chord line
-		// Heuristics: 
-		// 1. Contains chord patterns
-		// 2. Doesn't contain common lyric words OR is very short with mostly chords
-		// 3. Has specific spacing patterns typical of chord positioning
-		if containsChords(cleaned) && isChordLine(cleaned) {
+		// Apply chord wrapping to lines that are primarily chords
+		if isChordLine(cleaned) {
 			// Wrap each chord in brackets
 			wrappedLine := wrapChordsInBrackets(cleaned)
 			formatted = append(formatted, wrappedLine)
@@ -262,9 +270,6 @@ func formatChordContent(content string) string {
 
 	// Join lines back together
 	result := strings.Join(formatted, "\n")
-
-	// Clean up excessive blank lines (more than 2 consecutive)
-	result = regexp.MustCompile(`\n{3,}`).ReplaceAllString(result, "\n\n")
 
 	return strings.TrimSpace(result)
 }
@@ -290,21 +295,23 @@ func containsChords(line string) bool {
 // isChordLine determines if a line is primarily chords vs lyrics
 func isChordLine(line string) bool {
 	// If line is empty, not a chord line
-	if strings.TrimSpace(line) == "" {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "" {
 		return false
 	}
 	
-	// If line contains common lyric words, probably not a pure chord line
-	if containsCommonWords(line) {
+	// If line contains common lyric words at the beginning or end, probably lyrics
+	if containsCommonWords(trimmed) {
 		return false
 	}
 	
-	// Count chord-like tokens vs total tokens
-	tokens := strings.Fields(line)
+	// Split line into tokens (words)
+	tokens := strings.Fields(trimmed)
 	if len(tokens) == 0 {
 		return false
 	}
 	
+	// Pattern for valid chord tokens
 	chordPattern := regexp.MustCompile(`^[A-G][#b]?(?:maj|min|m|sus|aug|dim|add)?\d*(?:/[A-G][#b]?)?$`)
 	chordCount := 0
 	
@@ -314,9 +321,23 @@ func isChordLine(line string) bool {
 		}
 	}
 	
-	// If more than 60% of tokens are chords, treat as chord line
-	// Or if all tokens are chords
-	return float64(chordCount)/float64(len(tokens)) > 0.6
+	// If ALL tokens are chords, definitely a chord line
+	if chordCount == len(tokens) {
+		return true
+	}
+	
+	// If more than 50% of tokens are chords and no common words, likely a chord line
+	if chordCount > 0 && float64(chordCount)/float64(len(tokens)) >= 0.5 {
+		return true
+	}
+	
+	// Special case: Line with lots of spaces and few tokens (chord positioning line)
+	// e.g., "       A" or "    D          A"
+	if len(tokens) <= 3 && chordCount > 0 && len(line) > len(trimmed)*2 {
+		return true
+	}
+	
+	return false
 }
 
 // containsCommonWords checks if line contains common lyric words (to distinguish from chord lines)
@@ -325,17 +346,25 @@ func containsCommonWords(line string) bool {
 	commonWords := []string{
 		"the", "and", "you", "your", "my", "me", "i", "a", "to", "in", "of", "is", "it",
 		"for", "on", "with", "that", "this", "from", "all", "will", "can", "when", "where",
-		"who", "what", "have", "has", "had", "been", "was", "were", "are", "be",
+		"who", "what", "have", "has", "had", "been", "was", "were", "are", "be", "he", "she",
+		"we", "they", "them", "their", "his", "her", "our", "us", "him", "there", "then",
+		"but", "as", "at", "by", "an", "if", "or", "so", "up", "out", "do", "not", "like",
+		"just", "now", "know", "get", "got", "make", "see", "go", "come", "take", "give",
 	}
 	
 	lowerLine := strings.ToLower(line)
-	for _, word := range commonWords {
-		if strings.Contains(lowerLine, " "+word+" ") || 
-		   strings.HasPrefix(lowerLine, word+" ") || 
-		   strings.HasSuffix(lowerLine, " "+word) ||
-		   lowerLine == word {
-			return true
+	tokens := strings.Fields(lowerLine)
+	
+	// Check each token
+	for _, token := range tokens {
+		// Remove punctuation for checking
+		cleanToken := strings.Trim(token, ",.!?;:'\"")
+		for _, word := range commonWords {
+			if cleanToken == word {
+				return true
+			}
 		}
 	}
+	
 	return false
 }
