@@ -51,5 +51,5 @@ func worshipchordsAction(c *cli.Context) {
 	}
 	fmt.Println("Tempo: 100 BPM")
 	fmt.Println("")
-	fmt.Println(song.Content)
+	fmt.Print("\n" + song.Content)
 }
