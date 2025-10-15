@@ -342,7 +342,7 @@ func isChordLine(line string) bool {
 	
 	// If line has lots of internal spacing and all non-space content is chords
 	// This catches lines like "    D          A" where spaces position chords
-	if chordCount > 0 && len(line) >= len(trimmed)*1.5 && chordCount == len(tokens) {
+	if chordCount > 0 && float64(len(line)) >= float64(len(trimmed))*1.5 && chordCount == len(tokens) {
 		return true
 	}
 	
