@@ -23,6 +23,11 @@ import {
   Icon,
   Textarea,
   Checkbox,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
@@ -43,7 +48,7 @@ function SearchPage() {
   const [manualSong, setManualSong] = useState('');
   const [manualArtist, setManualArtist] = useState('');
   const [manualContent, setManualContent] = useState('');
-  const [manualRequiresAutomation, setManualRequiresAutomation] = useState(true);
+  const [manualRequiresAutomation, setManualRequiresAutomation] = useState(false);
   const [submittingManual, setSubmittingManual] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -195,10 +200,10 @@ function SearchPage() {
   };
 
   const handleManualSubmission = async () => {
-    if (!manualSong || !manualArtist || !manualContent) {
+    if (!manualContent) {
       toast({
         title: 'Error',
-        description: 'Please fill in all fields (song, artist, and content)',
+        description: 'Please enter chord content',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -210,10 +215,14 @@ function SearchPage() {
       setSubmittingManual(true);
       const id = 'manual-' + Date.now();
 
+      // Use "Unknown" for empty song/artist fields
+      const song = manualSong.trim() || 'Unknown Song';
+      const artist = manualArtist.trim() || 'Unknown Artist';
+
       await axios.post(`${API_URL}/send-to-drive`, {
         content: manualContent,
-        song: manualSong,
-        artist: manualArtist,
+        song: song,
+        artist: artist,
         id: id,
         isManualSubmission: true,
         requiresAutomation: manualRequiresAutomation,
@@ -231,7 +240,7 @@ function SearchPage() {
       setManualSong('');
       setManualArtist('');
       setManualContent('');
-      setManualRequiresAutomation(true);
+      setManualRequiresAutomation(false);
     } catch (error) {
       toast({
         title: 'Error submitting',
@@ -249,140 +258,147 @@ function SearchPage() {
     <Box>
       <VStack spacing={8} align="stretch">
         <Heading color="gray.100">Chord Scraper</Heading>
-        
-        {/* Ultimate Guitar Section */}
-        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
-          <VStack spacing={4} align="stretch">
-            <Heading size="md" color="purple.300">Ultimate Guitar</Heading>
-            <Input
-              placeholder="Search for a song..."
-              size="lg"
-              value={searchTerm}
-              onChange={handleSearch}
-              bg="gray.700"
-              borderColor="gray.600"
-              _hover={{ borderColor: 'purple.500' }}
-              _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
-            />
-          </VStack>
-        </Box>
 
-        {/* Worshipchords Section */}
-        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
-          <VStack spacing={4} align="stretch">
-            <Heading size="md" color="blue.300">Worshipchords.com</Heading>
-            <HStack>
-              <Input
-                placeholder="Paste worshipchords.com URL..."
-                size="lg"
-                value={worshipchordsUrl}
-                onChange={(e) => setWorshipchordsUrl(e.target.value)}
-                bg="gray.700"
-                borderColor="gray.600"
-                _hover={{ borderColor: 'blue.500' }}
-                _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
-              />
-              <Button
-                colorScheme="blue"
-                size="lg"
-                onClick={handleGetWorshipchords}
-                isLoading={loadingWorshipchords}
-                loadingText="Fetching..."
-                minW="150px"
-              >
-                Get Chords
-              </Button>
-            </HStack>
-            <Text fontSize="sm" color="gray.400">
-              Example: https://worshipchords.com/none-like-jehovah-chords/
-            </Text>
-          </VStack>
-        </Box>
+        <Tabs colorScheme="purple" variant="enclosed">
+          <TabList>
+            <Tab>Ultimate Guitar</Tab>
+            <Tab>Worshipchords</Tab>
+            <Tab>Manual Submission</Tab>
+          </TabList>
 
-        {/* Manual Submission Section */}
-        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
-          <VStack spacing={4} align="stretch">
-            <Heading size="md" color="green.300">Manual Submission</Heading>
-            <Text fontSize="sm" color="gray.400">
-              Submit raw chord text directly. Useful for manual entries that need additional processing.
-            </Text>
-            <Input
-              placeholder="Song Title"
-              size="lg"
-              value={manualSong}
-              onChange={(e) => setManualSong(e.target.value)}
-              bg="gray.700"
-              borderColor="gray.600"
-              _hover={{ borderColor: 'green.500' }}
-              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
-            />
-            <Input
-              placeholder="Artist Name"
-              size="lg"
-              value={manualArtist}
-              onChange={(e) => setManualArtist(e.target.value)}
-              bg="gray.700"
-              borderColor="gray.600"
-              _hover={{ borderColor: 'green.500' }}
-              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
-            />
-            <Textarea
-              placeholder="Paste or type the raw chord content here..."
-              value={manualContent}
-              onChange={(e) => setManualContent(e.target.value)}
-              bg="gray.700"
-              borderColor="gray.600"
-              _hover={{ borderColor: 'green.500' }}
-              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
-              minH="200px"
-              fontFamily="mono"
-              fontSize="sm"
-            />
-            <Checkbox
-              isChecked={manualRequiresAutomation}
-              onChange={(e) => setManualRequiresAutomation(e.target.checked)}
-              colorScheme="green"
-            >
-              <Text color="gray.300">Requires additional automation/processing</Text>
-            </Checkbox>
-            <Button
-              colorScheme="green"
-              size="lg"
-              onClick={handleManualSubmission}
-              isLoading={submittingManual}
-              loadingText="Submitting..."
-            >
-              Submit to Google Drive
-            </Button>
-          </VStack>
-        </Box>
+          <TabPanels>
+            {/* Ultimate Guitar Tab */}
+            <TabPanel>
+              <VStack spacing={4} align="stretch">
+                <Input
+                  placeholder="Search for a song..."
+                  size="lg"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  _hover={{ borderColor: 'purple.500' }}
+                  _focus={{ borderColor: 'purple.500', boxShadow: '0 0 0 1px var(--chakra-colors-purple-500)' }}
+                />
 
-        {loading && (
-          <Box textAlign="center">
-            <Spinner size="xl" color="purple.500" />
-          </Box>
-        )}
+                {loading && (
+                  <Box textAlign="center" py={8}>
+                    <Spinner size="xl" color="purple.500" />
+                  </Box>
+                )}
 
-        <VStack spacing={4} align="stretch">
-          {results.map((result) => (
-            <Card key={result.id} variant="outline" _hover={{ shadow: 'md' }}>
-              <CardBody>
-                <Stack spacing={3}>
-                  <Heading size="md" color="gray.100">{result.song || 'Unknown Song'}</Heading>
-                  <Text color="gray.300">Artist: {result.artist || 'Unknown Artist'}</Text>
-                  <Badge colorScheme="purple">{result.type || 'Unknown Type'}</Badge>
-                  <Text color="gray.400">Rating: {result.rating ? result.rating.toFixed(2) : 'N/A'}</Text>
+                <VStack spacing={4} align="stretch">
+                  {results.map((result) => (
+                    <Card key={result.id} variant="outline" _hover={{ shadow: 'md' }}>
+                      <CardBody>
+                        <Stack spacing={3}>
+                          <Heading size="md" color="gray.100">{result.song || 'Unknown Song'}</Heading>
+                          <Text color="gray.300">Artist: {result.artist || 'Unknown Artist'}</Text>
+                          <Badge colorScheme="purple">{result.type || 'Unknown Type'}</Badge>
+                          <Text color="gray.400">Rating: {result.rating ? result.rating.toFixed(2) : 'N/A'}</Text>
+                          <Button
+                            colorScheme="purple"
+                            onClick={() => handleGetOnsong(result)}
+                          >
+                            Get OnSong Format
+                          </Button>
+                        </Stack>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </VStack>
+              </VStack>
+            </TabPanel>
+
+            {/* Worshipchords Tab */}
+            <TabPanel>
+              <VStack spacing={4} align="stretch">
+                <HStack>
+                  <Input
+                    placeholder="Paste worshipchords.com URL..."
+                    size="lg"
+                    value={worshipchordsUrl}
+                    onChange={(e) => setWorshipchordsUrl(e.target.value)}
+                    bg="gray.700"
+                    borderColor="gray.600"
+                    _hover={{ borderColor: 'blue.500' }}
+                    _focus={{ borderColor: 'blue.500', boxShadow: '0 0 0 1px var(--chakra-colors-blue-500)' }}
+                  />
                   <Button
-                    colorScheme="purple"
-                    onClick={() => handleGetOnsong(result)}
+                    colorScheme="blue"
+                    size="lg"
+                    onClick={handleGetWorshipchords}
+                    isLoading={loadingWorshipchords}
+                    loadingText="Fetching..."
+                    minW="150px"
                   >
-                    Get OnSong Format
+                    Get Chords
                   </Button>
-                </Stack>
-              </CardBody>
-            </Card>
-          ))}
-        </VStack>
+                </HStack>
+                <Text fontSize="sm" color="gray.400">
+                  Example: https://worshipchords.com/none-like-jehovah-chords/
+                </Text>
+              </VStack>
+            </TabPanel>
+
+            {/* Manual Submission Tab */}
+            <TabPanel>
+              <VStack spacing={4} align="stretch">
+                <Text fontSize="sm" color="gray.400">
+                  Submit raw chord text directly. Song and artist are optional (will default to "Unknown").
+                </Text>
+                <Input
+                  placeholder="Song Title (optional)"
+                  size="lg"
+                  value={manualSong}
+                  onChange={(e) => setManualSong(e.target.value)}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  _hover={{ borderColor: 'green.500' }}
+                  _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+                />
+                <Input
+                  placeholder="Artist Name (optional)"
+                  size="lg"
+                  value={manualArtist}
+                  onChange={(e) => setManualArtist(e.target.value)}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  _hover={{ borderColor: 'green.500' }}
+                  _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+                />
+                <Textarea
+                  placeholder="Paste or type the raw chord content here..."
+                  value={manualContent}
+                  onChange={(e) => setManualContent(e.target.value)}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  _hover={{ borderColor: 'green.500' }}
+                  _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+                  minH="300px"
+                  fontFamily="mono"
+                  fontSize="sm"
+                />
+                <Checkbox
+                  isChecked={manualRequiresAutomation}
+                  onChange={(e) => setManualRequiresAutomation(e.target.checked)}
+                  colorScheme="green"
+                >
+                  <Text color="gray.300">Requires additional automation/processing</Text>
+                </Checkbox>
+                <Button
+                  colorScheme="green"
+                  size="lg"
+                  onClick={handleManualSubmission}
+                  isLoading={submittingManual}
+                  loadingText="Submitting..."
+                >
+                  Submit to Google Drive
+                </Button>
+              </VStack>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
 
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
           <ModalOverlay />
