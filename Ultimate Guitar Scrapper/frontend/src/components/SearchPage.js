@@ -198,6 +198,17 @@ function SearchPage() {
   };
 
   const handleManualSubmission = async () => {
+    if (!manualSong.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a song title',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
     if (!manualContent) {
       toast({
         title: 'Error',
@@ -213,8 +224,8 @@ function SearchPage() {
       setSubmittingManual(true);
       const id = 'manual-' + Date.now();
 
-      // Use "Unknown" for empty song/artist fields
-      const song = manualSong.trim() || 'Unknown Song';
+      // Use "Unknown Artist" if artist field is empty
+      const song = manualSong.trim();
       const artist = manualArtist.trim() || 'Unknown Artist';
 
       await axios.post(`${API_URL}/send-to-drive`, {
@@ -341,10 +352,10 @@ function SearchPage() {
             <TabPanel>
               <VStack spacing={4} align="stretch">
                 <Text fontSize="sm" color="gray.400">
-                  Submit raw chord text directly. Song and artist are optional (will default to "Unknown").
+                  Submit raw chord text directly. Artist is optional (will default to "Unknown").
                 </Text>
                 <Input
-                  placeholder="Song Title (optional)"
+                  placeholder="Song Title"
                   size="lg"
                   value={manualSong}
                   onChange={(e) => setManualSong(e.target.value)}
