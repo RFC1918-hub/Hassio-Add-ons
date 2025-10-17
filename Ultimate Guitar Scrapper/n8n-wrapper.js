@@ -235,24 +235,29 @@ app.post('/send-to-drive', strictLimiter, async (req, res) => {
             || 'https://n8n-058ea47.peakhq.co.za/webhook/703db9aa-615a-433c-aff6-67aea85e0712';
 
         // Security: Validate required fields
-        const { content, song, artist, id } = req.body;
+        const { content, song, artist, id, isManualSubmission, requiresAutomation } = req.body;
         if (!content || !song || !artist || !id) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
-        
+
+        // Log submission type for debugging
+        if (isManualSubmission) {
+            console.log('Manual submission detected - Requires automation:', requiresAutomation);
+        }
+
         console.log('Forwarding request to n8n webhook:', webhookUrl);
         console.log('Request body:', JSON.stringify(req.body, null, 2));
-        
-        // Forward the request to the n8n webhook
+
+        // Forward the request to the n8n webhook (including manual submission flags)
         const response = await axios.post(webhookUrl, req.body, {
             headers: {
                 'Content-Type': 'application/json'
             },
             timeout: 10000 // 10 second timeout
         });
-        
+
         console.log('n8n webhook response:', response.status, response.data);
-        
+
         // Forward the response back to the frontend
         res.status(response.status).json(response.data);
     } catch (error) {
@@ -262,13 +267,13 @@ app.post('/send-to-drive', strictLimiter, async (req, res) => {
             statusText: error.response?.statusText,
             data: error.response?.data
         });
-        
+
         // Return appropriate error response
         if (error.response) {
-            const errorMessage = error.response.status === 404 
+            const errorMessage = error.response.status === 404
                 ? 'n8n webhook not found. Please check if the workflow is active and the webhook URL is correct.'
                 : error.response.data || 'Failed to send to Google Drive';
-            
+
             res.status(error.response.status).json({
                 error: errorMessage,
                 details: {

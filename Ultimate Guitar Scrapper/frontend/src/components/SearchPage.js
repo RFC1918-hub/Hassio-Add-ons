@@ -21,6 +21,8 @@ import {
   useDisclosure,
   HStack,
   Icon,
+  Textarea,
+  Checkbox,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
@@ -38,6 +40,11 @@ function SearchPage() {
   const [sendingToDrive, setSendingToDrive] = useState(false);
   const [worshipchordsUrl, setWorshipchordsUrl] = useState('');
   const [loadingWorshipchords, setLoadingWorshipchords] = useState(false);
+  const [manualSong, setManualSong] = useState('');
+  const [manualArtist, setManualArtist] = useState('');
+  const [manualContent, setManualContent] = useState('');
+  const [manualRequiresAutomation, setManualRequiresAutomation] = useState(true);
+  const [submittingManual, setSubmittingManual] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
@@ -148,35 +155,35 @@ function SearchPage() {
     try {
       setLoadingWorshipchords(true);
       const response = await axios.post(`${API_URL}/worshipchords`, { url: worshipchordsUrl });
-      
+
       // Parse the response to extract song info
       // Format: Line 1 = Song Title, Line 2 = Artist, Line 3 = Key/Tempo info
       const lines = response.data.split('\n');
       let song = 'Unknown Song';
       let artist = 'Unknown Artist';
-      
+
       // Extract song title (first non-empty line)
       if (lines.length > 0 && lines[0].trim()) {
         song = lines[0].trim();
       }
-      
+
       // Extract artist (second non-empty line, skip if it's "Key:" or "Tempo:")
-      if (lines.length > 1 && lines[1].trim() && 
+      if (lines.length > 1 && lines[1].trim() &&
           !lines[1].startsWith('Key:') && !lines[1].startsWith('Tempo:')) {
         artist = lines[1].trim();
       }
-      
+
       // Create a unique ID from the URL for tracking
       const id = 'wc-' + worshipchordsUrl.split('/').filter(Boolean).pop().replace('-chords', '');
-      
+
       setSelectedTab({ song, artist, id, url: worshipchordsUrl });
       setOnsongContent(response.data);
       onOpen();
     } catch (error) {
       toast({
         title: 'Error getting worshipchords format',
-        description: typeof error.response?.data === 'string' 
-          ? error.response.data 
+        description: typeof error.response?.data === 'string'
+          ? error.response.data
           : error.response?.data?.message || error.message || 'Failed to get worshipchords format',
         status: 'error',
         duration: 5000,
@@ -184,6 +191,57 @@ function SearchPage() {
       });
     } finally {
       setLoadingWorshipchords(false);
+    }
+  };
+
+  const handleManualSubmission = async () => {
+    if (!manualSong || !manualArtist || !manualContent) {
+      toast({
+        title: 'Error',
+        description: 'Please fill in all fields (song, artist, and content)',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      setSubmittingManual(true);
+      const id = 'manual-' + Date.now();
+
+      await axios.post(`${API_URL}/send-to-drive`, {
+        content: manualContent,
+        song: manualSong,
+        artist: manualArtist,
+        id: id,
+        isManualSubmission: true,
+        requiresAutomation: manualRequiresAutomation,
+      });
+
+      toast({
+        title: 'Success',
+        description: 'Manual submission sent successfully!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Clear the form
+      setManualSong('');
+      setManualArtist('');
+      setManualContent('');
+      setManualRequiresAutomation(true);
+    } catch (error) {
+      toast({
+        title: 'Error submitting',
+        description: error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to submit',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setSubmittingManual(false);
     }
   };
 
@@ -238,6 +296,64 @@ function SearchPage() {
             <Text fontSize="sm" color="gray.400">
               Example: https://worshipchords.com/none-like-jehovah-chords/
             </Text>
+          </VStack>
+        </Box>
+
+        {/* Manual Submission Section */}
+        <Box p={6} bg="gray.800" borderRadius="lg" borderWidth="1px" borderColor="gray.700">
+          <VStack spacing={4} align="stretch">
+            <Heading size="md" color="green.300">Manual Submission</Heading>
+            <Text fontSize="sm" color="gray.400">
+              Submit raw chord text directly. Useful for manual entries that need additional processing.
+            </Text>
+            <Input
+              placeholder="Song Title"
+              size="lg"
+              value={manualSong}
+              onChange={(e) => setManualSong(e.target.value)}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: 'green.500' }}
+              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+            />
+            <Input
+              placeholder="Artist Name"
+              size="lg"
+              value={manualArtist}
+              onChange={(e) => setManualArtist(e.target.value)}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: 'green.500' }}
+              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+            />
+            <Textarea
+              placeholder="Paste or type the raw chord content here..."
+              value={manualContent}
+              onChange={(e) => setManualContent(e.target.value)}
+              bg="gray.700"
+              borderColor="gray.600"
+              _hover={{ borderColor: 'green.500' }}
+              _focus={{ borderColor: 'green.500', boxShadow: '0 0 0 1px var(--chakra-colors-green-500)' }}
+              minH="200px"
+              fontFamily="mono"
+              fontSize="sm"
+            />
+            <Checkbox
+              isChecked={manualRequiresAutomation}
+              onChange={(e) => setManualRequiresAutomation(e.target.checked)}
+              colorScheme="green"
+            >
+              <Text color="gray.300">Requires additional automation/processing</Text>
+            </Checkbox>
+            <Button
+              colorScheme="green"
+              size="lg"
+              onClick={handleManualSubmission}
+              isLoading={submittingManual}
+              loadingText="Submitting..."
+            >
+              Submit to Google Drive
+            </Button>
           </VStack>
         </Box>
 
