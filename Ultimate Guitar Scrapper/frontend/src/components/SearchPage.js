@@ -22,7 +22,6 @@ import {
   HStack,
   Icon,
   Textarea,
-  Checkbox,
   Tabs,
   TabList,
   TabPanels,
@@ -48,7 +47,6 @@ function SearchPage() {
   const [manualSong, setManualSong] = useState('');
   const [manualArtist, setManualArtist] = useState('');
   const [manualContent, setManualContent] = useState('');
-  const [manualRequiresAutomation, setManualRequiresAutomation] = useState(false);
   const [submittingManual, setSubmittingManual] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -225,7 +223,6 @@ function SearchPage() {
         artist: artist,
         id: id,
         isManualSubmission: true,
-        requiresAutomation: manualRequiresAutomation,
       });
 
       toast({
@@ -240,7 +237,6 @@ function SearchPage() {
       setManualSong('');
       setManualArtist('');
       setManualContent('');
-      setManualRequiresAutomation(false);
     } catch (error) {
       toast({
         title: 'Error submitting',
@@ -379,13 +375,6 @@ function SearchPage() {
                   fontFamily="mono"
                   fontSize="sm"
                 />
-                <Checkbox
-                  isChecked={manualRequiresAutomation}
-                  onChange={(e) => setManualRequiresAutomation(e.target.checked)}
-                  colorScheme="green"
-                >
-                  <Text color="gray.300">Requires additional automation/processing</Text>
-                </Checkbox>
                 <Button
                   colorScheme="green"
                   size="lg"
