@@ -4,7 +4,15 @@ FROM ${BUILD_FROM}
 USER root
 
 # Set Jellyseerr to use /data for configuration
-ENV CONFIG_DIR=/data
+ENV CONFIG_DIRECTORY=/data
 
-# Create entrypoint that ensures /data exists and links to /app/config
-ENTRYPOINT ["/bin/sh", "-c", "mkdir -p /data && rm -rf /app/config && ln -sf /data /app/config && node dist/index.js"]
+# Create startup script
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'mkdir -p /data' >> /start.sh && \
+    echo 'rm -rf /app/config' >> /start.sh && \
+    echo 'ln -sf /data /app/config' >> /start.sh && \
+    echo 'cd /app' >> /start.sh && \
+    echo 'exec yarn start' >> /start.sh && \
+    chmod +x /start.sh
+
+CMD ["/start.sh"]
