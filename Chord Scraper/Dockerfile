@@ -32,6 +32,9 @@ RUN go mod download
 # Copy source code
 COPY . .
 
+# Update module dependencies to recognize local packages
+RUN go mod tidy
+
 # Build the Go binary
 # CGO_ENABLED=0 for static binary (no external dependencies)
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chord-scraper main.go
