@@ -1,6 +1,6 @@
-name: Ultimate Guitar Scraper
+name: Chord Scraper
 version: 4.0.1
-slug: ultimate-guitar-scraper
+slug: chord-scraper
 description: Guitar tabs & worship chords scraper with Nashville Number System and OnSong export
 url: https://github.com/RFC1918-hub/Hassio-Add-ons/Chord-Scraper
 webui: "http://[HOST]:[PORT:3000]"
