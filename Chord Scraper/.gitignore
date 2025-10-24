@@ -4,8 +4,9 @@
 *.dll
 *.so
 *.dylib
-server
-scraper
+/server
+/scraper
+/chord-scraper
 
 # Test binary, built with `go test -c`
 *.test
