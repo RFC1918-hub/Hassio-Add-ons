@@ -106,7 +106,7 @@ function SearchPage() {
         content: onsongContent,
         song: selectedTab?.song,
         artist: selectedTab?.artist,
-        id: selectedTab?.id,
+        id: String(selectedTab?.id), // Convert to string to support all ID types
       });
       showSnackbar('Successfully sent to Google Drive!', 'success');
     } catch (error) {

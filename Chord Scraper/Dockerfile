@@ -30,7 +30,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code (this includes all local packages)
-# Version 4.0.5 - Enhanced logging for Google Drive debugging
+# Version 4.0.6 - Fix ID type mismatch for Google Drive uploads
 COPY . .
 
 # Build the Go binary
