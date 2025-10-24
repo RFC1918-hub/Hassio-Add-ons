@@ -30,6 +30,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code (this includes all local packages)
+# Version 4.0.3 - Force rebuild
 COPY . .
 
 # Build the Go binary
