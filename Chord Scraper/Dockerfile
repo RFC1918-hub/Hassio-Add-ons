@@ -29,15 +29,13 @@ COPY go.mod go.sum ./
 # Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy source code (this includes all local packages)
 COPY . .
 
-# Update module dependencies to recognize local packages
-RUN go mod tidy
-
 # Build the Go binary
-# CGO_ENABLED=0 for static binary (no external dependencies)
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o chord-scraper main.go
+# All local packages (config/, server/, handlers/, pkg/) are in the same module
+# so they will be recognized without needing go mod tidy
+RUN CGO_ENABLED=0 GOOS=linux go build -o chord-scraper .
 
 # Stage 3: Final Image
 FROM alpine:latest
